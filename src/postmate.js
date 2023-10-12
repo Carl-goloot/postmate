@@ -9,7 +9,7 @@ export const messageType = 'application/x-postmate-v1+json'
  * The maximum number of attempts to send a handshake request to the parent
  * @type {Number}
  */
-export const maxHandshakeRequests = 50
+export const maxHandshakeRequests = 100
 
 /**
  * A unique message ID that is used to ensure responses are sent to the correct requests
@@ -290,6 +290,10 @@ class Postmate {
     return new Postmate.Promise((resolve, reject) => {
       const reply = (e) => {
         if (!sanitize(e, childOrigin)) return false
+        if (e.data.iframeName !== this.frame.name) {
+          log('Parent: iframeName not equal to frame.name')
+          return false
+        }
         if (e.data.postmate === 'handshake-reply') {
           clearInterval(responseInterval)
           if (process.env.NODE_ENV !== 'production') {
@@ -331,7 +335,7 @@ class Postmate {
 
       const loaded = () => {
         doSend()
-        responseInterval = setInterval(doSend, 500)
+        responseInterval = setInterval(doSend, 150)
       }
 
       if (this.frame.attachEvent) {
@@ -355,11 +359,13 @@ class Postmate {
 Postmate.Model = class Model {
   /**
    * Initializes the child, model, parent, and responds to the Parents handshake
+   * @param {string} iframeName String to tell parent what is the source of the message
    * @param {Object} model Hash of values, functions, or promises
    * @return {Promise}       The Promise that resolves when the handshake has been received
    */
-  constructor (model) {
+  constructor (iframeName, model) {
     this.child = window
+    this.iframeName = iframeName
     this.model = model
     this.parent = this.child.parent
     return this.sendHandshakeReply()
@@ -382,10 +388,12 @@ Postmate.Model = class Model {
           this.child.removeEventListener('message', shake, false)
           if (process.env.NODE_ENV !== 'production') {
             log('Child: Sending handshake reply to Parent')
+            log('Child: iframeName: ', this.iframeName)
           }
           e.source.postMessage({
             postmate: 'handshake-reply',
             type: messageType,
+            iframeName: this.iframeName,
           }, e.origin)
           this.parentOrigin = e.origin
 

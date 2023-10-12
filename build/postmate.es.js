@@ -15,7 +15,7 @@ var messageType = 'application/x-postmate-v1+json';
  * The maximum number of attempts to send a handshake request to the parent
  * @type {Number}
  */
-var maxHandshakeRequests = 50;
+var maxHandshakeRequests = 100;
 
 /**
  * A unique message ID that is used to ensure responses are sent to the correct requests
@@ -283,6 +283,10 @@ var Postmate = /*#__PURE__*/function () {
     return new Postmate.Promise(function (resolve, reject) {
       var reply = function reply(e) {
         if (!sanitize(e, childOrigin)) return false;
+        if (e.data.iframeName !== _this4.frame.name) {
+          log('Parent: iframeName not equal to frame.name');
+          return false;
+        }
         if (e.data.postmate === 'handshake-reply') {
           clearInterval(responseInterval);
           if (process.env.NODE_ENV !== 'production') {
@@ -322,7 +326,7 @@ var Postmate = /*#__PURE__*/function () {
       };
       var loaded = function loaded() {
         doSend();
-        responseInterval = setInterval(doSend, 500);
+        responseInterval = setInterval(doSend, 150);
       };
       if (_this4.frame.attachEvent) {
         _this4.frame.attachEvent('onload', loaded);
@@ -356,11 +360,13 @@ Postmate.Promise = function () {
 Postmate.Model = /*#__PURE__*/function () {
   /**
    * Initializes the child, model, parent, and responds to the Parents handshake
+   * @param {string} iframeName String to tell parent what is the source of the message
    * @param {Object} model Hash of values, functions, or promises
    * @return {Promise}       The Promise that resolves when the handshake has been received
    */
-  function Model(model) {
+  function Model(iframeName, model) {
     this.child = window;
+    this.iframeName = iframeName;
     this.model = model;
     this.parent = this.child.parent;
     return this.sendHandshakeReply();
@@ -385,10 +391,12 @@ Postmate.Model = /*#__PURE__*/function () {
           _this5.child.removeEventListener('message', shake, false);
           if (process.env.NODE_ENV !== 'production') {
             log('Child: Sending handshake reply to Parent');
+            log('Child: iframeName: ', _this5.iframeName);
           }
           e.source.postMessage({
             postmate: 'handshake-reply',
-            type: messageType
+            type: messageType,
+            iframeName: _this5.iframeName
           }, e.origin);
           _this5.parentOrigin = e.origin;
 
