@@ -9,7 +9,7 @@ export const messageType = 'application/x-postmate-v1+json'
  * The maximum number of attempts to send a handshake request to the parent
  * @type {Number}
  */
-export const maxHandshakeRequests = 100
+export const maxHandshakeRequests = 20
 
 /**
  * A unique message ID that is used to ensure responses are sent to the correct requests
@@ -335,7 +335,7 @@ class Postmate {
 
       const loaded = () => {
         doSend()
-        responseInterval = setInterval(doSend, 150)
+        responseInterval = setInterval(doSend, 1000)
       }
 
       if (this.frame.attachEvent) {

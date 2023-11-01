@@ -21,7 +21,7 @@
    * The maximum number of attempts to send a handshake request to the parent
    * @type {Number}
    */
-  var maxHandshakeRequests = 100;
+  var maxHandshakeRequests = 20;
 
   /**
    * A unique message ID that is used to ensure responses are sent to the correct requests
@@ -332,7 +332,7 @@
         };
         var loaded = function loaded() {
           doSend();
-          responseInterval = setInterval(doSend, 150);
+          responseInterval = setInterval(doSend, 1000);
         };
         if (_this4.frame.attachEvent) {
           _this4.frame.attachEvent('onload', loaded);
