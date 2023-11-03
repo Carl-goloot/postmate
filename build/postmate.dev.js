@@ -290,7 +290,7 @@
         var reply = function reply(e) {
           if (!sanitize(e, childOrigin)) return false;
           if (e.data.iframeName !== _this4.frame.name) {
-            log('Parent: iframeName not equal to frame.name');
+            log("Parent: expected name \"" + _this4.frame.name + "\" -- received \"" + e.data.iframeName + "\"");
             return false;
           }
           if (e.data.postmate === 'handshake-reply') {

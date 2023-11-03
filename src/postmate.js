@@ -291,7 +291,7 @@ class Postmate {
       const reply = (e) => {
         if (!sanitize(e, childOrigin)) return false
         if (e.data.iframeName !== this.frame.name) {
-          log('Parent: iframeName not equal to frame.name')
+          log(`Parent: expected name "${this.frame.name}" -- received "${e.data.iframeName}"`)
           return false
         }
         if (e.data.postmate === 'handshake-reply') {
