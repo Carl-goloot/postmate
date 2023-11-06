@@ -113,7 +113,7 @@
       }
       this.listener = function (e) {
         if (!sanitize(e, _this.childOrigin)) return false;
-
+        if (e.data.iframeName !== _this.frame.name) return false;
         /**
          * the assignments below ensures that e, data, and value are all defined
          */
@@ -197,6 +197,7 @@
       this.parent = info.parent;
       this.parentOrigin = info.parentOrigin;
       this.child = info.child;
+      this.iframeName = info.iframeName;
       {
         log('Child: Registering API');
         log('Child: Awaiting messages...');
@@ -237,6 +238,7 @@
       this.parent.postMessage({
         postmate: 'emit',
         type: messageType,
+        iframeName: this.iframeName,
         value: {
           name: name,
           data: data

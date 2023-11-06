@@ -107,7 +107,7 @@ var ParentAPI = /*#__PURE__*/function () {
     }
     this.listener = function (e) {
       if (!sanitize(e, _this.childOrigin)) return false;
-
+      if (e.data.iframeName !== _this.frame.name) return false;
       /**
        * the assignments below ensures that e, data, and value are all defined
        */
@@ -191,6 +191,7 @@ var ChildAPI = /*#__PURE__*/function () {
     this.parent = info.parent;
     this.parentOrigin = info.parentOrigin;
     this.child = info.child;
+    this.iframeName = info.iframeName;
     if (process.env.NODE_ENV !== 'production') {
       log('Child: Registering API');
       log('Child: Awaiting messages...');
@@ -231,6 +232,7 @@ var ChildAPI = /*#__PURE__*/function () {
     this.parent.postMessage({
       postmate: 'emit',
       type: messageType,
+      iframeName: this.iframeName,
       value: {
         name: name,
         data: data
